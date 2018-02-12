@@ -11,7 +11,6 @@ This is a npm nodule for the front end ([a cmm module](https://github.com/uladka
 
 
 ## Example Usage
-
 ```js
 require("clientside-request")
     .then((request)=>{
