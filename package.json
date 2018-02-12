@@ -1,0 +1,19 @@
+{
+  "name": "clientside-request",
+  "version": "1.0.0",
+  "description": "a clientside module that enables async requests; mimics request-promise in usage.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uladkasach/clientside-request.git"
+  },
+  "author": "uladkasach",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uladkasach/clientside-request/issues"
+  },
+  "homepage": "https://github.com/uladkasach/clientside-request#readme"
+}
