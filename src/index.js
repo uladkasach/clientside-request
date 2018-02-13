@@ -115,16 +115,12 @@ Request.prototype = {
     return_error_handler : function(resolve, reject){
         return function(error){
             // console.log("onerror handler has triggered!");
-            /*
             // note: `this` referes to xhr object
             if (this.readyState == 4 && this.status == 0) {
-                alert("Server response not received. Are you sure you're connected to the internet?");
+                reject({type : "NO_RESPONSE", error : error}); // no server response
             } else {
-                alert("An unknown error has occured. Please reload the page or contact us for help!");
+                reject({type : "UNK", error : error}); // unknown
             }
-            */
-            reject({type : "CONNECTION", error : error});
-            //reject(error);
         }
     }
 }
