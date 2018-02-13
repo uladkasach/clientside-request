@@ -1,4 +1,4 @@
-var qs = require("qs");
+var qs = require("qs"); // sync require
 
 var Request = function(options){
     console.log(options);
@@ -8,7 +8,8 @@ var Request = function(options){
     // set defaults
     if(typeof options == "string") options = {uri:options}; // cast uri to options object if options is string
     if(typeof options.method == "undefined") options.method = "GET"; // default to GET
-    if(typeof options.cookies == "undefined") options.cookies = true; // default to use cookies
+    if(typeof options.cookies == "undefined") options.cookies = true; // default to use cookies; must have cross-origin access
+    if(typeof options.json == "undefined") options.json = false; // default to not use json
     if(typeof options.headers == "undefined") options.headers = {}; // create default option to which future defaults will append to
 
     // append data headers for post requests
@@ -29,6 +30,7 @@ var Request = function(options){
     if(typeof options.uri != "string") return Promise.reject("options.uri must be a valid uri to which a request should be made");
     if(this.enabled_methods.indexOf(options.method) == -1) return Promise.reject("options.method is invalid; must be in [" + this.enabled_methods.join(",") + "]"); //  invalid method response
     if(typeof options.cookies !== "boolean") return Promise.reject("options.cookies type is invalid; must be boolean"); // invalid cookie toggle
+    if(typeof options.json !== "boolean") return Promise.reject("options.json type is invalid; must be boolean"); // invalid json toggle
     if(typeof options.method == "POST" && options.json === true && typeof options.body == "undefined") return Promise.reject("options.body must be defined if method == POST and json === true");
     if(typeof options.method == "POST" && options.json !== true && typeof options.form == "undefined") return Promise.reject("options.form must be defined in method == POST and json !== true");
 
@@ -36,21 +38,46 @@ var Request = function(options){
     if(typeof options.method == "GET" && typeof options.qs == "undefined" && (typeof options.form != "undefined" || typeof options.body != "undefined")) console.warn("request was made with method GET and form or body was defined, but qs was not. this is likely not intentional.") // warn user
 
 
-    console.log("here i am");
+    /*
+        define data_string  and query_string
+    */
+    if(options.method == "POST"){
+        query_string = "";
+        if(options.json === true) var data_string = JSON.stringify(options.body);
+        if(options.json !== true) var data_string = qs.stringify(options.form);
+    } else {
+        var query_string = qs.stringify(options.qs);
+        if(query_string != "") query_string = "?" + query_string;
+        var data_string = null;
+    }
+    console.log("query string : " + query_string);
+    console.log("data string : " + data_string);
 
     /*
         begin request; https://xhr.spec.whatwg.org/
     */
-
-    query_string = qs.stringify(options.qs);
-    console.log(query_string);
     var client = new XMLHttpRequest(); // instantiate xhr object
-    if(options.cookies) client.withCredentials = true; // if cookies are requested, retreive and pass cookies as needed
+    if(options.cookies === true) client.withCredentials = true; // if cookies are requested, retreive and pass cookies as needed
     if(typeof options.headers != "undefined") this.append_headers(client, options.headers); // if headers are defined, append them; client is passed by referece and modified in place
-    client.open(options.method, options.uri + query_string); // open the request
 
 
+    promise_request = new Promise((resolve, reject)=>{
+        client.onload = this.return_load_handler(resolve, reject);
+        client.onerror = this.return_error_handler(resolve, reject);
+        client.open(options.method, options.uri + query_string); // open the request
+        client.send(data_string);
+    })
 
+    /*
+        easy test; note fails by cross origin
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://google.com", true);
+        xhr.onload = function(){ console.log(this.responseText) }
+        xhr.onerror = function(error){ console.log("error found:"); console.error(error); }
+        xhr.send();
+    */
+
+    return promise_request;
 };
 
 Request.prototype = {
@@ -64,43 +91,6 @@ Request.prototype = {
             client.setRequestHeader(key, headers[key]);
         });
         // return clients not required as this function modifies by reference
-    },
-
-    /*
-        requests
-    */
-    POST : function(uri, data){
-        return promise_data
-            .then((data)=>{
-                return new Promise((resolve, reject)=>{
-                    var xhr = new XMLHttpRequest();
-                    xhr.withCredentials = true;
-                    xhr.open("POST", uri, true);
-                    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                    xhr.onload = this.return_load_handler(resolve, reject);
-                    xhr.onerror = this.return_error_handler(resolve, reject);
-                    xhr.send(data);
-                })
-            });
-    },
-    GET : function(uri, data){
-
-        var promise_data = require("qs") // promise to parse data
-            .then((qs)=>{
-                if(typeof data == "object") data = qs.stringify(data); // stringify the data
-                return data;
-            });
-        return promise_data
-            .then((data)=>{
-                return new Promise((resolve, reject)=>{
-                    var xhr = new XMLHttpRequest();
-                    xhr.withCredentials = true;
-                    xhr.open("GET", uri + "?" + data, true);
-                    xhr.onload = this.return_load_handler(resolve, reject);
-                    xhr.onerror = this.return_error_handler(resolve, reject);
-                    xhr.send();
-                })
-            });
     },
 
     /*
@@ -132,9 +122,9 @@ Request.prototype = {
             } else {
                 alert("An unknown error has occured. Please reload the page or contact us for help!");
             }
-            reject({type : "CONNECTION"});
             */
-            reject(error);
+            reject({type : "CONNECTION", error : error});
+            //reject(error);
         }
     }
 }

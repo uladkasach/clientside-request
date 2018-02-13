@@ -14,7 +14,7 @@ This is a npm nodule for the front end ([a cmm module](https://github.com/uladka
 ```js
 require("clientside-request")
     .then((request)=>{
-        return request("http://google.com")
+        return request("http://same_origin/route") // note, request must be same origin as browsers block cross origin requests.
     })
     .then((response)=>{
         /* */
