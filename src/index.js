@@ -13,8 +13,8 @@ var Request = function(options){
     if(typeof options.headers == "undefined") options.headers = {}; // create default option to which future defaults will append to
 
     // append data headers for post requests
-    if(options.method == "POST" && options.json === true) headers.options["content-type"] = "application/json;charset=UTF-8"; // if POST and json, add json content header
-    if(options.method == "POST" && options.json !== true) headers.options["content-type"] = "application/x-www-form-urlencoded"; // if POST and not json, add form urlencoded (querystring format) content header
+    if(options.method == "POST" && options.json === true) options.headers["content-type"] = "application/json;charset=UTF-8"; // if POST and json, add json content header
+    if(options.method == "POST" && options.json !== true) options.headers["content-type"] = "application/x-www-form-urlencoded"; // if POST and not json, add form urlencoded (querystring format) content header
 
     // cast options.data if possible
     if(options.method == "GET" && typeof options.qs == "undefined" && options.data != "undefined") options.qs = options.data; // enable options.data casting to options.qs for GET request; dont overwrite if options.qs is already set
@@ -56,15 +56,14 @@ var Request = function(options){
     /*
         begin request; https://xhr.spec.whatwg.org/
     */
-    var client = new XMLHttpRequest(); // instantiate xhr object
-    if(options.cookies === true) client.withCredentials = true; // if cookies are requested, retreive and pass cookies as needed
-    if(typeof options.headers != "undefined") this.append_headers(client, options.headers); // if headers are defined, append them; client is passed by referece and modified in place
-
 
     promise_request = new Promise((resolve, reject)=>{
+        var client = new XMLHttpRequest(); // instantiate xhr object
+        if(options.cookies === true) client.withCredentials = true; // if cookies are requested, retreive and pass cookies as needed
+        client.open(options.method, options.uri + query_string); // open the request
+        if(typeof options.headers != "undefined") this.append_headers(client, options.headers); // if headers are defined, append them; client is passed by referece and modified in place
         client.onload = this.return_load_handler(resolve, reject);
         client.onerror = this.return_error_handler(resolve, reject);
-        client.open(options.method, options.uri + query_string); // open the request
         client.send(data_string);
     })
 
