@@ -5,7 +5,7 @@ var qs = {
             if (obj.hasOwnProperty(p)) {
                 var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
                 str.push((v !== null && typeof v === "object") ?
-                    serialize(v, k) :
+                    this.stringify(v, k) :
                     encodeURIComponent(k) + "=" + encodeURIComponent(v));
             }
         }
