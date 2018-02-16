@@ -1,4 +1,19 @@
-var qs = require("qs"); // sync require
+var qs = {
+    stringify : function(obj, prefix) { // https://stackoverflow.com/a/1714899/3068233
+        var str = [], p;
+        for(p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                var k = prefix ? prefix + "[" + p + "]" : p, v = obj[p];
+                str.push((v !== null && typeof v === "object") ?
+                    serialize(v, k) :
+                    encodeURIComponent(k) + "=" + encodeURIComponent(v));
+            }
+        }
+        return str.join("&");
+    }
+}
+//var qs = require("qs"); // sync require
+
 
 var Request = function(options){
     /*
