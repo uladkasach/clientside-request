@@ -1,7 +1,6 @@
 var qs = require("qs"); // sync require
 
 var Request = function(options){
-    console.log(options);
     /*
         cast implicit input to explicit input (e.g., defaults and utility conversions)
     */
@@ -25,7 +24,6 @@ var Request = function(options){
     /*
         validate input
     */
-
     // throw rejections when invalid request defined
     if(typeof options.uri != "string") return Promise.reject("options.uri must be a valid uri to which a request should be made");
     if(this.enabled_methods.indexOf(options.method) == -1) return Promise.reject("options.method is invalid; must be in [" + this.enabled_methods.join(",") + "]"); //  invalid method response
@@ -50,13 +48,10 @@ var Request = function(options){
         if(query_string != "") query_string = "?" + query_string;
         var data_string = null;
     }
-    console.log("query string : " + query_string);
-    console.log("data string : " + data_string);
 
     /*
         begin request; https://xhr.spec.whatwg.org/
     */
-
     promise_request = new Promise((resolve, reject)=>{
         var client = new XMLHttpRequest(); // instantiate xhr object
         if(options.cookies === true) client.withCredentials = true; // if cookies are requested, retreive and pass cookies as needed
