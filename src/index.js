@@ -12,7 +12,6 @@ var qs = {
         return str.join("&");
     }
 }
-//var qs = require("qs"); // sync require
 
 
 var Request = function(options){
