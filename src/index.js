@@ -26,7 +26,7 @@ var Request = function(options){
     if(typeof options.headers == "undefined") options.headers = {}; // create default option to which future defaults will append to
 
     // append data headers for post requests
-    if(options.method == "POST" && options.json === true) options.headers["content-type"] = "application/json;charset=UTF-8"; // if POST and json, add json content header
+    if(options.method == "POST" && options.json === true) options.headers["content-type"] = "application/json"; // if POST and json, add json content header
     if(options.method == "POST" && options.json !== true) options.headers["content-type"] = "application/x-www-form-urlencoded"; // if POST and not json, add form urlencoded (querystring format) content header
 
     // cast options.data if possible
@@ -109,9 +109,8 @@ Request.prototype = {
             //console.log(this.status);
             //console.log(this.responseText);
             // note: `this` referes to xhr object
-            if(this.status == "401") return reject({type : "401"}); // UNAUTHORIZED - https://httpstatuses.com/401
-            if(this.status == "403") return reject({type : "403"}); // FORBIDDEN - https://httpstatuses.com/403
-            if(this.status == "412") return reject({type : "412"}); // PRECONDITION FAILED - https://httpstatuses.com/412
+            if(this.status.toString()[0] == "4") return reject({status : this.status, type : "client"}); // 4XX - CLIENT ERROR
+            if(this.status.toString()[0] == "5") return reject({status : this.status, type : "server"}); // 5XX - SERVER ERROR
             try {
                 response = JSON.parse(this.responseText); // try to parse response as json
             } catch(err) {
