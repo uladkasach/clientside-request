@@ -10,7 +10,7 @@ process.on('unhandledRejection', (reason, p) => {
 var jsdom = require("jsdom");
 var xmlhttprequest = require("xmlhttprequest");
 global.window = new jsdom.JSDOM(``,{
-    url: "http://test-env.clientside-api-request.localhost",
+    url: "http://test-env.clientside-request.localhost",
     resources: "usable", // load iframes and other resources
     runScripts : "dangerously", // enable loading of scripts - dangerously is fine since we are running code we wrote.
 }).window;

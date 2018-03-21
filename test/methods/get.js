@@ -14,4 +14,10 @@ describe('GET', function(){
         assert.equal(typeof response, "object");
         assert.equal(response.test, 'true'); // note that query string casts all types into strings
     })
+    it("should be able to send a GET reqeust and retreive data with cookies:true", async function(){
+        // cookies:true results in Coors and Credentials constraints
+        var request = await clientside_require.asynchronous_require(module_path);
+        var response = await request({uri:"http://localhost:3000/say_hello_cookies-test", cookies:true});
+        assert.equal(response, "hello")
+    })
 })

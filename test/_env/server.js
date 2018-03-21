@@ -42,5 +42,38 @@ app.post('/post/form', (req, res) =>{
     res.json(req.body) // respond with request body
 })
 
+
+/* allow cross origin for specific host */
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://clientside-request.localhost");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", true)
+  next();
+});
+
+/* define roots that depend on cross origin for specific host */
+app.get('/say_hello_cookies-demo', (req, res) =>{
+    res.send('hello') // respond with "Hello!"
+})
+
+
+
+/* allow cross origin for specific host */
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://test-env.clientside-request.localhost");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", true)
+  next();
+});
+
+/* define roots that depend on cross origin for specific host */
+app.get('/say_hello_cookies-test', (req, res) =>{
+    res.send('hello') // respond with "Hello!"
+})
+app.post('/post/json_cookies-test', (req, res) =>{
+    console.log(req.body);
+    res.json(req.body) // respond with request body
+})
+
 /* start server */
 app.listen(3000, () => console.log('Testing Server listening on port 3000!'))

@@ -15,4 +15,11 @@ describe('POST', function(){
         assert.equal(typeof response, "object");
         assert.equal(response.test, true, "test value should be true");
     })
+    it("should be able to send a GET reqeust and retreive data with cookies:true", async function(){
+        // cookies:true results in Coors and Credentials constraints
+        var request = await clientside_require.asynchronous_require(module_path);
+        var response = await request({uri:"http://localhost:3000/post/json_cookies-test", method :"POST", json:true, data : {test:true}, cookies:true});
+        assert.equal(typeof response, "object");
+        assert.equal(response.test, true, "test value should be true");
+    })
 })
