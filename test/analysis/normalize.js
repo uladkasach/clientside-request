@@ -9,10 +9,10 @@ describe('normalize', function(){
             var options = request.prototype.normalize_options();
             assert.equal(options.method, "GET");
         })
-        it('should default cookies to `true`', async function(){
+        it('should default cookies to `false`', async function(){
             var request = await clientside_require.asynchronous_require(class_path);
             var options = request.prototype.normalize_options();
-            assert.equal(options.cookies, true);
+            assert.equal(options.cookies, false);
         })
         it('should default json to `false`', async function(){
             var request = await clientside_require.asynchronous_require(class_path);

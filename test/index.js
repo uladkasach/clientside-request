@@ -14,7 +14,7 @@ global.window = new jsdom.JSDOM(``,{
     resources: "usable", // load iframes and other resources
     runScripts : "dangerously", // enable loading of scripts - dangerously is fine since we are running code we wrote.
 }).window;
-window.XMLHttpRequest = xmlhttprequest.XMLHttpRequest; // append XMLHttpRequest to window
+//window.XMLHttpRequest = xmlhttprequest.XMLHttpRequest; // append XMLHttpRequest to window
 
 /*
     define clientside_require

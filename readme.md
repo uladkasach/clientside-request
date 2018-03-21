@@ -20,3 +20,6 @@ require("clientside-request")
         /* */
     })
 ```
+
+## comments
+To preserve sessions and handle cookies from server and to server - set `{cookies : true}`

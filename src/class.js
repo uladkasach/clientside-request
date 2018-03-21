@@ -50,6 +50,7 @@ Request.prototype = {
             client.onload = this.return_load_handler(resolve, reject);
             client.onerror = this.return_error_handler(resolve, reject);
             client.send(data_string);
+            client.uri = uri; // so that onload handler can access uri
         })
     },
     extract_query_and_data_from_options : function(options){
@@ -70,6 +71,91 @@ Request.prototype = {
     },
 
 
+
+    /*
+        request helpers
+    */
+    append_headers : function(client, headers){
+        Object.keys(headers).forEach((key)=>{ // append each to the request
+            client.setRequestHeader(key, headers[key]);
+        });
+        // return clients not required as this function modifies by reference
+    },
+
+    /*
+        error and response handlers
+    */
+    return_load_handler : function(resolve, reject){
+        return function(){
+            /*
+                detect errors
+            */
+            if(this.status.toString()[0] == "4"){ // 4XX - CLIENT ERROR
+                var error = new Error("4XX - CLIENT ERROR - " + this.status + " - " + this.uri);
+                error.code = this.status; // append status code as error code
+                error.type = "CLIENT"; // since of client type
+                return reject(error);
+            }
+            if(this.status.toString()[0] == "5"){ // 5XX - SERVER ERROR
+                var error = new Error("5XX - SERVER ERROR - " + this.status + " - " + this.uri);
+                error.code = this.status; // append status code as error code
+                error.type = "SERVER"; // since of client type
+                return reject(error);
+            }
+
+            /*
+                attempt to cast string to json
+                    - if failed, then just return string
+            */
+            try {
+                response = JSON.parse(this.responseText); // try to parse response as json
+            } catch(err) {
+                response = this.responseText; // if error, then its not json and just return the response
+            }
+
+            /*
+                resolve with response
+            */
+            resolve(response);
+        }
+    },
+    return_error_handler : function(resolve, reject){
+        return function(original_error){
+            var xhr_object = this; // this referes to the xhr object since the xhr object is assigned this function
+
+            /*
+                create custom error and append original error
+            */
+            var custom_error = new Error();
+            custom_error.original_error = original_error;
+
+            /*
+                detect if we can provide more information
+            */
+            if (xhr_object.readyState == 4 && xhr_object.status == 0) { // no server response
+                custom_error.code = "NO_RESPONSE";
+                custom_error.type = "CONNECTION";
+            } else { // unknown error
+                custom_error.code = "UNKNOWN";
+                custom_error.type = "CONNECTION";
+            }
+
+            /*
+                append error message
+            */
+            var message_artifact = (original_error.message)? " - " + original_error.message : "";
+            custom_error.message = custom_error.type // display type
+                + " - " + custom_error.code // code
+                + message_artifact; // pass along original_error message if it exists
+
+            /*
+                resolve with response
+            */
+            return reject(custom_error);
+        }
+    },
+
+
     /*
         request analysis
     */
@@ -81,7 +167,7 @@ Request.prototype = {
         if(typeof options == "undefined") options = {};
         if(typeof options == "string") options = {uri:options}; // cast uri to options object if options is string
         if(typeof options.method == "undefined") options.method = "GET"; // default to GET
-        if(typeof options.cookies == "undefined") options.cookies = true; // default to use cookies; must have cross-origin access
+        if(typeof options.cookies == "undefined") options.cookies = false; // default to not use cookies; when cookies are true, must have cross-origin access
         if(typeof options.json == "undefined") options.json = false; // default to not use json
         if(typeof options.headers == "undefined") options.headers = {}; // create default option to which future defaults will append to
 
@@ -137,72 +223,6 @@ Request.prototype = {
     },
 
 
-    /*
-        request helpers
-    */
-    append_headers : function(client, headers){
-        Object.keys(headers).forEach((key)=>{ // append each to the request
-            client.setRequestHeader(key, headers[key]);
-        });
-        // return clients not required as this function modifies by reference
-    },
-
-    /*
-        error and response handlers
-    */
-    return_load_handler : function(resolve, reject){
-        return function(){
-            /*
-                detect errors
-            */
-            if(this.status.toString()[0] == "4"){ // 4XX - CLIENT ERROR
-                var error = new Error("4XX - CLIENT ERROR - " + this.status + " - " + this.uri);
-                error.code = this.status; // append status code as error code
-                error.type = "CLIENT"; // since of client type
-                return reject(error);
-            }
-            if(this.status.toString()[0] == "5"){ // 5XX - SERVER ERROR
-                var error = new Error("5XX - SERVER ERROR - " + this.status + " - " + this.uri);
-                error.code = this.status; // append status code as error code
-                error.type = "SERVER"; // since of client type
-                return reject(error);
-            }
-
-            /*
-                attempt to cast string to json
-                    - if failed, then just return string
-            */
-            try {
-                response = JSON.parse(this.responseText); // try to parse response as json
-            } catch(err) {
-                response = this.responseText; // if error, then its not json and just return the response
-            }
-
-            /*
-                resolve with response
-            */
-            resolve(response);
-        }
-    },
-    return_error_handler : function(resolve, reject){
-        return function(error){
-            /*
-                detect if we can provide more information
-            */
-            if (this.readyState == 4 && this.status == 0) { // no server response
-                error.code = "NO_RESPONSE";
-                error.type = "CONNECTION";
-            } else { // unknown error
-                error.code = "UNKNOWN";
-                error.type = "CONNECTION";
-            }
-
-            /*
-                resolve with response
-            */
-            return reject(error);
-        }
-    }
 }
 
 module.exports = Request;
