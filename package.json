@@ -15,10 +15,9 @@
   "bugs": {
     "url": "https://github.com/uladkasach/clientside-request/issues"
   },
-  "require_mode": "async",
   "homepage": "https://github.com/uladkasach/clientside-request#readme",
   "dependencies": {
-    "clientside-require": "^3.9.7"
+    "clientside-require": "^4.0.0"
   },
   "require_mode": "async",
   "devDependencies": {

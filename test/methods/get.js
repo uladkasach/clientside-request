@@ -1,4 +1,4 @@
-var module_path = "file:///var/www/git/More/clientside-request/src/index.js";
+var module_path = "http://test-env.clientside-request.localhost/src/index.js";
 var clientside_require = require("clientside-require");
 var assert = require('assert');
 

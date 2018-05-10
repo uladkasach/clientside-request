@@ -1,4 +1,4 @@
-var class_path = "file:///var/www/git/More/clientside-request/src/class.js";
+var class_path = "http://test-env.clientside-request.localhost/src/class.js";
 var clientside_require = require("clientside-require");
 var assert = require('assert');
 

@@ -14,7 +14,6 @@ global.window = new jsdom.JSDOM(``,{
     resources: "usable", // load iframes and other resources
     runScripts : "dangerously", // enable loading of scripts - dangerously is fine since we are running code we wrote.
 }).window;
-//window.XMLHttpRequest = xmlhttprequest.XMLHttpRequest; // append XMLHttpRequest to window
 
 /*
     define clientside_require
@@ -25,8 +24,8 @@ var assert = require('assert');
 /*
     define global vars
 */
-var module_path = "file:///var/www/git/More/clientside-request/src/index.js";
-var class_path = "file:///var/www/git/More/clientside-request/src/class.js";
+var module_path = "http://test-env.clientside-request.localhost/src/index.js";
+var class_path = "http://test-env.clientside-request.localhost/src/class.js";
 
 /*
     test
